@@ -1,0 +1,1 @@
+A lightweight Model Context Protocol server for allowing LLMs to autonomously interact with SQLite database.
