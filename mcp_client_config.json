@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "sqlite-mcp": {
+      "command": "/absolute/path/to/sqlite/.venv/bin/python",
+      "args": [
+        "/absolute/path/to/sqlite/server.py"
+      ],
+      "host": "127.0.0.1",
+      "port": 8080,
+      "timeout": 30000
+    }
+  }
+}
