@@ -6,7 +6,7 @@ import sys
 import logging
 import sqlite3
 from typing import Optional, Dict, Any
-
+import os
 from mcp.server.fastmcp import FastMCP
 
 # Configure logging
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Database setup
-DB_NAME = "path/to/database.db"
+DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "db/chinook.db"))
 
 def signal_handler(sig, frame):
     """
@@ -28,6 +28,33 @@ def setup_signal_handling():
     Setup signal handling for graceful termination.
     """
     signal.signal(signal.SIGINT, signal_handler)
+
+def validate_database():
+    """
+    Validate database existence and accessibility.
+    Creates the database directory if it doesn't exist.
+    """
+    db_dir = os.path.dirname(DB_NAME)
+    
+    # Create directory structure if it doesn't exist
+    if not os.path.exists(db_dir):
+        try:
+            os.makedirs(db_dir)
+            logger.info(f"Created database directory: {db_dir}")
+        except Exception as e:
+            logger.error(f"Failed to create database directory: {e}")
+            sys.exit(1)
+    
+    # Test database connection
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        conn.close()
+        logger.info(f"Successfully connected to database at: {DB_NAME}")
+    except sqlite3.Error as e:
+        logger.error(f"Database connection failed: {e}")
+        logger.error(f"Database path: {DB_NAME}")
+        logger.error(f"Check if you have write permissions to: {db_dir}")
+        sys.exit(1)
 
 # Initialize the FastMCP server
 mcp = FastMCP(
@@ -112,8 +139,10 @@ def main():
     """
     Main entry point for the MCP server.
     """
+    print(DB_NAME)
     setup_signal_handling()
-    print("Starting MCP server 'count-r' on 127.0.0.1:8080")
+    validate_database()
+    print("Starting MCP server 'sqlite-mcp' on 127.0.0.1:8080")
     mcp.run()
 
 if __name__ == "__main__":
