@@ -1,5 +1,3 @@
-# Refactored code with an additional comment
-
 import time
 import signal
 import sys
@@ -118,6 +116,44 @@ def get_all_items(table_name: str) -> Dict[str, Any]:
     # In a real application, sanitize/validate 'table_name' to avoid SQL injection!
     query = f"SELECT * FROM {table_name};"
     return execute_query(query)
+
+@mcp.tool(name="get_item_by_id", description="Retrieve a single row by ID from a specified table")
+def get_item_by_id(table_name: str, id_value: str, id_column: str) -> Dict[str, Any]:
+    """
+    Retrieves a single row from the specified table by its ID.
+
+    Args:
+        table_name (str): The name of the table to query.
+        id_value (int): The ID value to search for.
+        id_column (str, optional): The name of the ID column. Defaults to "id".
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the query result or an error.
+    """
+    # Using parameterized query to prevent SQL injection
+    query = f"SELECT * FROM {table_name} WHERE {id_column} = ?;"
+    parameters = (id_value,)
+
+    return execute_query(query, parameters)
+
+@mcp.tool(name="get_item_by_name", description="Retrieve a single row by Name from a specified table")
+def get_item_by_name(table_name: str, name_value: str, name_column: str = "name") -> Dict[str, Any]:
+    """
+    Retrieves a single row from the specified table by its ID.
+
+    Args:
+        table_name (str): The name of the table to query.
+        name_value (int): The ID value to search for.
+        name_column (str, optional): The name of the Name column. Defaults to "name".
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the query result or an error.
+    """
+    # Using parameterized query to prevent SQL injection
+    query = f"SELECT * FROM {table_name} WHERE {name_column} = ?;"
+    parameters = (name_value,)
+
+    return execute_query(query, parameters)
 
 @mcp.tool(name="list_all_tables", description="Returns a list of all table names in the SQLite database")
 def list_all_tables() -> Dict[str, Any]:
