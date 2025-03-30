@@ -6,7 +6,7 @@ A lightweight Model Context Protocol (MCP) server that enables Large Language Mo
 
 1. Clone the repository:
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/dubydu/sqlite-mcp.git
 cd sqlite-mcp
 ```
 
