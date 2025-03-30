@@ -61,6 +61,21 @@ python server.py --db-path /path/to/your/database.db --host 0.0.0.0 --port 9000
    - Get a list of all tables in the database
    - Usage: `list_all_tables()`
 
+6. **create_item**
+   - Create a new row in a specified table
+   - Usage: `create_item(table_name, data)`
+   - Returns the ID of the newly created row
+
+7. **update_item**
+   - Update an existing row in a specified table
+   - Usage: `update_item(table_name, id_value, data, id_column)`
+   - Updates specified columns with new values
+
+8. **delete_item**
+   - Delete a row from a specified table
+   - Usage: `delete_item(table_name, id_value, id_column)`
+   - Removes the specified row from the table
+
 ## MCP CLients Configuration
 
 * 5ire
