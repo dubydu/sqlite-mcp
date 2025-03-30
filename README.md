@@ -35,7 +35,7 @@ python server.py --db-path /path/to/your/database.db --host 0.0.0.0 --port 9000
 
 ### Command Line Options
 
-- `--db-path`: Path to SQLite database file (default: "./db/chinook.db")
+- `--db-path`: Path to SQLite database file (default: "./db/default.db")
 - `--host`: Host address to bind the server (default: "127.0.0.1")
 - `--port`: Port number to bind the server (default: 8080)
 
@@ -78,13 +78,15 @@ python server.py --db-path /path/to/your/database.db --host 0.0.0.0 --port 9000
 ```
 
 * Claude Desktop
-```
+```json
 {
   "mcpServers": {
     "sqlite-mcp": {
       "command": "/absolute/path/to/sqlite-mcp/.venv/bin/python",
       "args": [
-        "/absolute/path/to/sqlite-mcp/server.py"
+        "/absolute/path/to/sqlite-mcp/server.py",
+         "--db-path",
+         "/path/to/database.db"
       ]
     }
   }
