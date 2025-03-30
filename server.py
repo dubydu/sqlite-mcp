@@ -6,13 +6,14 @@ import sqlite3
 from typing import Optional, Dict, Any
 import os
 from mcp.server.fastmcp import FastMCP
+import argparse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Database setup
-DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "db/chinook.db"))
+DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "db/default.db"))
 
 def signal_handler(sig, frame):
     """
@@ -55,12 +56,7 @@ def validate_database():
         sys.exit(1)
 
 # Initialize the FastMCP server
-mcp = FastMCP(
-    name="sqlite-mcp",
-    host="127.0.0.1",
-    port=8080,
-    timeout=30
-)
+mcp = FastMCP()
 
 @mcp.tool(name="sqlite_query", description="Execute a SQL query on the SQLite database")
 def execute_query(query: str, parameters: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -101,22 +97,6 @@ def execute_query(query: str, parameters: Optional[Dict[str, Any]] = None) -> Di
         if conn:
             conn.close()
 
-@mcp.tool(name="get_all_items", description="Retrieve all rows from a specified table in the SQLite database")
-def get_all_items(table_name: str) -> Dict[str, Any]:
-    """
-    Retrieves all rows from the specified table.
-
-    Args:
-        table_name (str): The name of the table to query.
-
-    Returns:
-        Dict[str, Any]: A dictionary containing the query results or an error.
-    """
-    # IMPORTANT: This is a simple example.
-    # In a real application, sanitize/validate 'table_name' to avoid SQL injection!
-    query = f"SELECT * FROM {table_name};"
-    return execute_query(query)
-
 @mcp.tool(name="get_item_by_id", description="Retrieve a single row by ID from a specified table")
 def get_item_by_id(table_name: str, id_value: str, id_column: str) -> Dict[str, Any]:
     """
@@ -155,8 +135,24 @@ def get_item_by_name(table_name: str, name_value: str, name_column: str = "name"
 
     return execute_query(query, parameters)
 
-@mcp.tool(name="list_all_tables", description="Returns a list of all table names in the SQLite database")
-def list_all_tables() -> Dict[str, Any]:
+@mcp.tool(name="get_all_items", description="Retrieve all rows from a specified table in the SQLite database")
+def get_all_items(table_name: str) -> Dict[str, Any]:
+    """
+    Retrieves all rows from the specified table.
+
+    Args:
+        table_name (str): The name of the table to query.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the query results or an error.
+    """
+    # IMPORTANT: This is a simple example.
+    # In a real application, sanitize/validate 'table_name' to avoid SQL injection!
+    query = f"SELECT * FROM {table_name};"
+    return execute_query(query)
+
+@mcp.tool(name="get_all_tables", description="Returns a list of all table names in the SQLite database")
+def get_all_tables() -> Dict[str, Any]:
     """
     Fetch all table names from the SQLite database.
 
@@ -171,13 +167,43 @@ def list_all_tables() -> Dict[str, Any]:
     """
     return execute_query(query)
 
+def parse_arguments():
+    """
+    Parse command line arguments.
+    """
+    parser = argparse.ArgumentParser(description='SQLite MCP Server')
+    parser.add_argument(
+        '--db-path',
+        default="./db/default.db",
+        help='Path to SQLite database file'
+    )
+    parser.add_argument(
+        '--host',
+        default="127.0.0.1",
+        help='Host address to bind the server'
+    )
+    parser.add_argument(
+        '--port',
+        type=int,
+        default=8080,
+        help='Port number to bind the server'
+    )
+    return parser.parse_args()
+
 def main():
     """
     Main entry point for the MCP server.
     """
-    print(DB_NAME)
+    args = parse_arguments()
+    
+    # Update DB_NAME with command line argument
+    global DB_NAME
+    DB_NAME = os.path.abspath(args.db_path)
+    
+    print(f"Database path: {DB_NAME}")
     setup_signal_handling()
     validate_database()
+
     print("Starting MCP server 'sqlite-mcp' on 127.0.0.1:8080")
     mcp.run()
 
