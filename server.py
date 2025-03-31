@@ -56,7 +56,7 @@ def validate_database():
         sys.exit(1)
 
 # Initialize the FastMCP server
-mcp = FastMCP()
+mcp = FastMCP(name="sqlite-mcp")
 
 @mcp.tool(name="sqlite_query", description="Execute a SQL query on the SQLite database")
 def execute_query(query: str, parameters: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -292,6 +292,14 @@ def main():
     print(f"Database path: {DB_NAME}")
     setup_signal_handling()
     validate_database()
+
+    # global mcp
+    # mcp = FastMCP(
+    #     name="sqlite-mcp",
+    #     host=args.host,
+    #     port=args.port,
+    #     timeout=30
+    # )
 
     print("Starting MCP server 'sqlite-mcp' on 127.0.0.1:8080")
     mcp.run()

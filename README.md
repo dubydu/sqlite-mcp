@@ -30,14 +30,12 @@ python server.py
 
 ### Custom Configuration
 ```bash
-python server.py --db-path /path/to/your/database.db --host 0.0.0.0 --port 9000
+python server.py --db-path /path/to/your/database.db
 ```
 
 ### Command Line Options
 
 - `--db-path`: Path to SQLite database file (default: "./db/default.db")
-- `--host`: Host address to bind the server (default: "127.0.0.1")
-- `--port`: Port number to bind the server (default: 8080)
 
 ## Available MCP Tools
 
