@@ -19,19 +19,19 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 3. Install dependencies:
 ```bash
-pip install -r requirements.txt
+uv add "mcp[cli]" mcp
 ```
 
 ## Usage
 
 ### Basic Start
 ```bash
-python server.py
+uv run main.py
 ```
 
 ### Custom Configuration
 ```bash
-uv server.py --db-path /path/to/your/database.db --host 0.0.0.0 --port 9000
+uv run main.py --db-path /path/to/your/database.db --host 0.0.0.0 --port 9000
 ```
 
 ### Command Line Options
