@@ -167,6 +167,95 @@ def get_all_tables() -> Dict[str, Any]:
     """
     return execute_query(query)
 
+@mcp.tool(name="update_item", description="Update an existing row in a specified table")
+def update_item(table_name: str, id_value: Any, data: Dict[str, Any], id_column: str) -> Dict[str, Any]:
+    """
+    Updates an existing row in the specified table.
+
+    Args:
+        table_name (str): The name of the table to update.
+        id_value (Any): The ID value of the row to update.
+        data (Dict[str, Any]): Dictionary containing column names and their new values.
+        id_column (str, optional): The name of the ID column. Defaults to "id".
+
+    Returns:
+        Dict[str, Any]: A dictionary indicating success/failure and containing the result or error.
+    """
+    set_clause = ", ".join([f"{k} = ?" for k in data.keys()])
+    query = f"UPDATE {table_name} SET {set_clause} WHERE {id_column} = ?;"
+    
+    # Add id_value to the parameters
+    parameters = tuple(data.values()) + (id_value,)
+    
+    try:
+        result = execute_query(query, parameters)
+        if result["success"]:
+            return {
+                "success": True,
+                "message": "Item updated successfully"
+            }
+        return result
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+    
+@mcp.tool(name="delete_item", description="Delete a row from a specified table")
+def delete_item(table_name: str, id_value: Any, id_column: str) -> Dict[str, Any]:
+    """
+    Deletes a row from the specified table.
+
+    Args:
+        table_name (str): The name of the table to delete from.
+        id_value (Any): The ID value of the row to delete.
+        id_column (str, optional): The name of the ID column. Defaults to "id".
+
+    Returns:
+        Dict[str, Any]: A dictionary indicating success/failure and containing the result or error.
+    """
+    query = f"DELETE FROM {table_name} WHERE {id_column} = ?;"
+    
+    try:
+        result = execute_query(query, (id_value,))
+        if result["success"]:
+            return {
+                "success": True,
+                "message": "Item deleted successfully"
+            }
+        return result
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+    
+@mcp.tool(name="create_item", description="Create a new row in a specified table")
+def create_item(table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Creates a new row in the specified table with the provided data.
+
+    Args:
+        table_name (str): The name of the table to insert into.
+        data (Dict[str, Any]): Dictionary containing column names and their values.
+
+    Returns:
+        Dict[str, Any]: A dictionary indicating success/failure and containing the new row's ID or error.
+    """
+    columns = ", ".join(data.keys())
+    placeholders = ", ".join(["?" for _ in data])
+    query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders});"
+    
+    try:
+        result = execute_query(query, tuple(data.values()))
+        if result["success"]:
+            # Get the last inserted row ID
+            last_id_query = "SELECT last_insert_rowid();"
+            id_result = execute_query(last_id_query)
+            if id_result["success"]:
+                return {
+                    "success": True,
+                    "message": "Item created successfully",
+                    "id": id_result["results"][0]["last_insert_rowid()"]
+                }
+        return result
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 def parse_arguments():
     """
     Parse command line arguments.
