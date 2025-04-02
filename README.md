@@ -107,7 +107,6 @@ python src/entry.py --db-path /path/to/your/database.db
 
 ## Requirements
 
-- Python 3.7+
-- SQLite3
-- FastMCP
-- PyTest
+- Python 3.12.7+
+- [MCP](https://pypi.org/project/mcp/) 1.6.0+
+- [PyTest](https://pypi.org/project/pytest/) 8.3.5+
