@@ -25,12 +25,12 @@ pip install -r requirements.txt
 
 ### Basic Start
 ```bash
-python server.py
+python src/entry.py
 ```
 
 ### Custom Configuration
 ```bash
-python server.py --db-path /path/to/your/database.db
+python src/entry.py --db-path /path/to/your/database.db
 ```
 
 ### Command Line Options
@@ -43,36 +43,36 @@ python server.py --db-path /path/to/your/database.db
    - Execute custom SQL queries with optional parameters
    - Supports both read (SELECT) and write (INSERT/UPDATE/DELETE) operations
 
-2. **get_all_items**
-   - Retrieve all rows from a specified table
-   - Usage: `get_all_items(table_name)`
-
-3. **get_item_by_id**
+2. **get_item_by_id**
    - Retrieve a single row by ID from any table
    - Usage: `get_item_by_id(table_name, id_value, id_column)`
 
-4. **get_item_by_name**
+3. **get_item_by_name**
    - Retrieve a single row by name from any table
    - Usage: `get_item_by_name(table_name, name_value, name_column="name")`
 
-5. **list_all_tables**
-   - Get a list of all tables in the database
-   - Usage: `list_all_tables()`
-
-6. **create_item**
+4. **create_item**
    - Create a new row in a specified table
    - Usage: `create_item(table_name, data)`
    - Returns the ID of the newly created row
 
-7. **update_item**
+5. **update_item**
    - Update an existing row in a specified table
    - Usage: `update_item(table_name, id_value, data, id_column)`
    - Updates specified columns with new values
 
-8. **delete_item**
+6. **delete_item**
    - Delete a row from a specified table
    - Usage: `delete_item(table_name, id_value, id_column)`
    - Removes the specified row from the table
+
+7. **get_all_items**
+   - Retrieve all rows from a specified table
+   - Usage: `get_all_items(table_name)`
+
+8. **get_all_tables**
+   - Get a list of all tables in the database
+   - Usage: `get_all_tables()`
 
 ## MCP CLients Configuration
 
@@ -83,7 +83,7 @@ python server.py --db-path /path/to/your/database.db
   "key": "sqlite",
   "command": "/absolute/path/to/sqlite-mcp/.venv/bin/python",
   "args": [
-    "/absolute/path/to/sqlite-mcp/server.py",
+    "/absolute/path/to/sqlite-mcp/src/entry.py",
     "--db-path",
     "/path/to/database.db"
   ]
@@ -97,7 +97,7 @@ python server.py --db-path /path/to/your/database.db
     "sqlite-mcp": {
       "command": "/absolute/path/to/sqlite-mcp/.venv/bin/python",
       "args": [
-        "/absolute/path/to/sqlite-mcp/server.py",
+        "/absolute/path/to/sqlite-mcp/src/entry.py",
          "--db-path",
          "/path/to/database.db"
       ]

@@ -1,0 +1,9 @@
+[project]
+name = "sqlite-mcp"
+version = "0.1.0"
+description = "A lightweight Model Context Protocol (MCP) server that enables Large Language Models (LLMs) to autonomously interact with SQLite databases."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp==1.6.0",
+]

@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Database setup
-DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "db/default.db"))
+DB_NAME = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "db/dummy.db"))
 
 def signal_handler(sig, frame):
     """
@@ -97,95 +97,44 @@ def execute_query(query: str, parameters: Optional[Dict[str, Any]] = None) -> Di
         if conn:
             conn.close()
 
-@mcp.tool(name="get_item_by_id", description="Retrieve a single row by ID from a specified table")
-def get_item_by_id(table_name: str, id_value: str, id_column: str) -> Dict[str, Any]:
+@mcp.tool(name="get_item", description="Retrieve a single row from a specified table")
+def get_item(table_name: str, value: str, column: str) -> Dict[str, Any]:
     """
-    Retrieves a single row from the specified table by its ID.
+    Retrieves a single row from the specified table.
 
     Args:
         table_name (str): The name of the table to query.
-        id_value (int): The ID value to search for.
-        id_column (str, optional): The name of the ID column. Defaults to "id".
+        value (str): The value to search for.
+        column (str): The name of the column.
 
     Returns:
         Dict[str, Any]: A dictionary containing the query result or an error.
     """
     # Using parameterized query to prevent SQL injection
-    query = f"SELECT * FROM {table_name} WHERE {id_column} = ?;"
-    parameters = (id_value,)
+    query = f"SELECT * FROM {table_name} WHERE {column} = ?;"
+    parameters = (value,)
 
     return execute_query(query, parameters)
-
-@mcp.tool(name="get_item_by_name", description="Retrieve a single row by Name from a specified table")
-def get_item_by_name(table_name: str, name_value: str, name_column: str = "name") -> Dict[str, Any]:
-    """
-    Retrieves a single row from the specified table by its ID.
-
-    Args:
-        table_name (str): The name of the table to query.
-        name_value (int): The ID value to search for.
-        name_column (str, optional): The name of the Name column. Defaults to "name".
-
-    Returns:
-        Dict[str, Any]: A dictionary containing the query result or an error.
-    """
-    # Using parameterized query to prevent SQL injection
-    query = f"SELECT * FROM {table_name} WHERE {name_column} = ?;"
-    parameters = (name_value,)
-
-    return execute_query(query, parameters)
-
-@mcp.tool(name="get_all_items", description="Retrieve all rows from a specified table in the SQLite database")
-def get_all_items(table_name: str) -> Dict[str, Any]:
-    """
-    Retrieves all rows from the specified table.
-
-    Args:
-        table_name (str): The name of the table to query.
-
-    Returns:
-        Dict[str, Any]: A dictionary containing the query results or an error.
-    """
-    # IMPORTANT: This is a simple example.
-    # In a real application, sanitize/validate 'table_name' to avoid SQL injection!
-    query = f"SELECT * FROM {table_name};"
-    return execute_query(query)
-
-@mcp.tool(name="get_all_tables", description="Returns a list of all table names in the SQLite database")
-def get_all_tables() -> Dict[str, Any]:
-    """
-    Fetch all table names from the SQLite database.
-
-    Returns:
-        Dict[str, Any]: A dictionary containing the list of tables or an error.
-    """
-    query = """
-    SELECT name 
-    FROM sqlite_master 
-    WHERE type='table' 
-    ORDER BY name;
-    """
-    return execute_query(query)
 
 @mcp.tool(name="update_item", description="Update an existing row in a specified table")
-def update_item(table_name: str, id_value: Any, data: Dict[str, Any], id_column: str) -> Dict[str, Any]:
+def update_item(table_name: str, value: Any, data: Dict[str, Any], column: str) -> Dict[str, Any]:
     """
     Updates an existing row in the specified table.
 
     Args:
         table_name (str): The name of the table to update.
-        id_value (Any): The ID value of the row to update.
+        value (Any): The value of the row to update.
         data (Dict[str, Any]): Dictionary containing column names and their new values.
-        id_column (str, optional): The name of the ID column. Defaults to "id".
+        column (str, optional): The name of the column.
 
     Returns:
         Dict[str, Any]: A dictionary indicating success/failure and containing the result or error.
     """
     set_clause = ", ".join([f"{k} = ?" for k in data.keys()])
-    query = f"UPDATE {table_name} SET {set_clause} WHERE {id_column} = ?;"
+    query = f"UPDATE {table_name} SET {set_clause} WHERE {column} = ?;"
     
     # Add id_value to the parameters
-    parameters = tuple(data.values()) + (id_value,)
+    parameters = tuple(data.values()) + (value,)
     
     try:
         result = execute_query(query, parameters)
@@ -199,22 +148,22 @@ def update_item(table_name: str, id_value: Any, data: Dict[str, Any], id_column:
         return {"success": False, "error": str(e)}
     
 @mcp.tool(name="delete_item", description="Delete a row from a specified table")
-def delete_item(table_name: str, id_value: Any, id_column: str) -> Dict[str, Any]:
+def delete_item(table_name: str, value: Any, column: str) -> Dict[str, Any]:
     """
     Deletes a row from the specified table.
 
     Args:
         table_name (str): The name of the table to delete from.
-        id_value (Any): The ID value of the row to delete.
-        id_column (str, optional): The name of the ID column. Defaults to "id".
+        value (Any): The ID value of the row to delete.
+        column (str, optional): The name of the ID column. Defaults to "id".
 
     Returns:
         Dict[str, Any]: A dictionary indicating success/failure and containing the result or error.
     """
-    query = f"DELETE FROM {table_name} WHERE {id_column} = ?;"
+    query = f"DELETE FROM {table_name} WHERE {column} = ?;"
     
     try:
-        result = execute_query(query, (id_value,))
+        result = execute_query(query, (value,))
         if result["success"]:
             return {
                 "success": True,
@@ -256,6 +205,38 @@ def create_item(table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@mcp.tool(name="get_all_items", description="Retrieve all rows from a specified table in the SQLite database")
+def get_all_items(table_name: str) -> Dict[str, Any]:
+    """
+    Retrieves all rows from the specified table.
+
+    Args:
+        table_name (str): The name of the table to query.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the query results or an error.
+    """
+    # IMPORTANT: This is a simple example.
+    # In a real application, sanitize/validate 'table_name' to avoid SQL injection!
+    query = f"SELECT * FROM {table_name};"
+    return execute_query(query)
+
+@mcp.tool(name="get_all_tables", description="Returns a list of all table names in the SQLite database")
+def get_all_tables() -> Dict[str, Any]:
+    """
+    Fetch all table names from the SQLite database.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the list of tables or an error.
+    """
+    query = """
+    SELECT name 
+    FROM sqlite_master 
+    WHERE type='table' 
+    ORDER BY name;
+    """
+    return execute_query(query)
+
 def parse_arguments():
     """
     Parse command line arguments.
@@ -263,7 +244,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='SQLite MCP Server')
     parser.add_argument(
         '--db-path',
-        default="./db/default.db",
+        required=True,
         help='Path to SQLite database file'
     )
     parser.add_argument(
@@ -287,21 +268,14 @@ def main():
     
     # Update DB_NAME with command line argument
     global DB_NAME
+    print(f"Database path 1: {DB_NAME}")
     DB_NAME = os.path.abspath(args.db_path)
     
     print(f"Database path: {DB_NAME}")
     setup_signal_handling()
     validate_database()
 
-    # global mcp
-    # mcp = FastMCP(
-    #     name="sqlite-mcp",
-    #     host=args.host,
-    #     port=args.port,
-    #     timeout=30
-    # )
-
-    print("Starting MCP server 'sqlite-mcp' on 127.0.0.1:8080")
+    print(f"Starting MCP server 'sqlite-mcp' on {args.host}:{args.port}")
     mcp.run()
 
 if __name__ == "__main__":
