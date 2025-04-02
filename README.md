@@ -69,6 +69,10 @@ python src/entry.py --db-path /path/to/your/database.db
    - Get a list of all tables in the database
    - Usage: `get_all_tables()`
 
+9. **get_db_version()**
+   - Get version of the database
+   - Usage: `get_db_version()`
+
 ## MCP CLients Configuration
 
 * 5ire
