@@ -237,6 +237,17 @@ def get_all_tables() -> Dict[str, Any]:
     """
     return execute_query(query)
 
+@mcp.tool(name="get_db_version", description="Returns the version of the SQLite database")
+def get_db_version() -> Dict[str, Any]:
+    """
+    Fetch the version information of the SQLite database.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the database version information or an error.
+    """
+    query = "SELECT sqlite_version();"
+    return execute_query(query)
+
 def parse_arguments():
     """
     Parse command line arguments.
