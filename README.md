@@ -109,4 +109,5 @@ python src/entry.py --db-path /path/to/your/database.db
 
 - Python 3.7+
 - SQLite3
-- FastMCP library
+- FastMCP
+- PyTest
