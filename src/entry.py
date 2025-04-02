@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Database setup
-DB_NAME = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "db/dummy.db"))
+DB_NAME = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "db/database.db"))
 
 def signal_handler(sig, frame):
     """

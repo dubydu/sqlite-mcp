@@ -25,11 +25,6 @@ pip install -r requirements.txt
 
 ### Basic Start
 ```bash
-python src/entry.py
-```
-
-### Custom Configuration
-```bash
 python src/entry.py --db-path /path/to/your/database.db
 ```
 
