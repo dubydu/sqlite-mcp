@@ -30,7 +30,7 @@ python src/entry.py --db-path /path/to/your/database.db
 
 ### Command Line Options
 
-- `--db-path`: Path to SQLite database file (default: "./db/default.db")
+- `--db-path`: Path to SQLite database file (default: "./db/database.db")
 
 ## Available MCP Tools
 
