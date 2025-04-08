@@ -7,7 +7,8 @@ import tempfile
 # Add the src directory to the path so we can import the module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.entry import execute_query, get_item, get_all_items, get_all_tables
-from src.entry import update_item, delete_item, create_item
+from src.entry import update_item, delete_item, create_item, extract_to_json
+from src.entry import create_table, alter_table, drop_table, backup_database, get_db_version
 
 @pytest.fixture
 def test_db():
@@ -209,3 +210,92 @@ def test_create_item(test_db):
     result = create_item("products", new_product)
     assert result["success"] is True
     assert "id" in result
+
+def test_create_table(test_db):
+    # Define table schema
+    columns = {
+        "id": {"type": "INTEGER", "primary_key": True, "not_null": True},
+        "name": {"type": "TEXT", "not_null": True},
+        "price": {"type": "REAL", "default": 0.0}
+    }
+    
+    # Create table
+    result = create_table("new_table", columns)
+    assert result["success"] is True
+    assert "message" in result
+
+    # Verify table creation
+    tables = get_all_tables()
+    table_names = [row["name"] for row in tables["results"]]
+    assert "new_table" in table_names
+
+
+def test_alter_table(test_db):
+    # Add a new column
+    result = alter_table("users", "add_column", column_name="phone", column_type="TEXT")
+    assert result["success"] is True
+
+    # Verify column addition
+    query = "PRAGMA table_info(users);"
+    result = execute_query(query)
+    columns = [col["name"] for col in result["results"]]
+    assert "phone" in columns
+
+
+def test_drop_table(test_db):
+    # Drop the products table
+    result = drop_table("products")
+    assert result["success"] is True
+
+    # Verify table deletion
+    tables = get_all_tables()
+    table_names = [row["name"] for row in tables["results"]]
+    assert "products" not in table_names
+
+
+def test_backup_database(test_db):
+    # Create a backup
+    result = backup_database("test_backup.db")
+    assert result["success"] is True
+    assert "message" in result
+
+    # Verify backup file exists
+    backup_path = os.path.join(os.path.dirname(test_db), "test_backup.db")
+    assert os.path.exists(backup_path)
+
+    # Clean up backup file
+    os.remove(backup_path)
+
+
+def test_extract_to_json(test_db):
+    # Extract users table to JSON
+    result = extract_to_json("users", "users_data.json")
+    assert result["success"] is True
+    assert "message" in result
+
+    # Verify JSON file exists
+    json_path = os.path.join(os.getcwd(), "users_data.json")
+    assert os.path.exists(json_path)
+
+    # Clean up JSON file
+    os.remove(json_path)
+
+def test_alter_table(test_db):
+    # Add a new column
+    result = alter_table("users", "add_column", column_name="phone", column_type="TEXT")
+    assert result["success"] is True
+    assert "message" in result
+
+    # Verify column addition using PRAGMA table_info
+    query = "PRAGMA table_info(users);"
+    pragma_result = execute_query(query)
+    
+    # Ensure the query returned results
+    assert pragma_result["success"] is True
+
+def test_get_db_version(test_db):
+    # Get database version
+    result = get_db_version()
+    assert result["success"] is True
+    assert "results" in result
+    assert "sqlite_version()" in result["results"][0]

@@ -7,6 +7,7 @@ from typing import Optional, Dict, Any
 import os
 from mcp.server.fastmcp import FastMCP
 import argparse
+import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -58,7 +59,7 @@ def validate_database():
 # Initialize the FastMCP server
 mcp = FastMCP(name="sqlite-mcp")
 
-@mcp.tool(name="sqlite_query", description="Execute a SQL query on the database")
+@mcp.tool(name="execute_query", description="Execute a SQL query on the database")
 def execute_query(query: str, parameters: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Execute a SQL query on the database.
@@ -503,6 +504,46 @@ def backup_database(backup_filename: str = None) -> Dict[str, Any]:
                 dest_conn.close()
     except Exception as e:
         return {"success": False, "error": f"Error creating backup: {str(e)}"}
+
+@mcp.tool(name="extract_to_json", description="Extract data from a table and save it as a JSON file")
+def extract_to_json(table_name: str, output_filename: str = None) -> Dict[str, Any]:
+    """
+    Extracts data from a specified table in the SQLite database and saves it as a JSON file.
+
+    Args:
+        table_name (str): The name of the table to extract data from.
+        output_filename (str, optional): The name of the output JSON file. 
+                                         If not provided, a timestamp-based name will be used.
+
+    Returns:
+        Dict[str, Any]: A dictionary indicating success/failure and containing a result message or error.
+    """
+    try:
+        # Generate output filename if not provided
+        if not output_filename:
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            output_filename = f"{table_name}_data_{timestamp}.json"
+        elif not output_filename.endswith(".json"):
+            output_filename = f"{output_filename}.json"
+
+        # Query all data from the table
+        query = f"SELECT * FROM {table_name};"
+        result = execute_query(query)
+
+        if not result["success"]:
+            return result
+
+        # Write data to JSON file
+        data = result.get("results", [])
+        with open(output_filename, "w") as json_file:
+            json.dump(data, json_file, indent=4)
+
+        return {
+            "success": True,
+            "message": f"Data from table '{table_name}' successfully extracted to {output_filename}"
+        }
+    except Exception as e:
+        return {"success": False, "error": f"Error extracting data to JSON: {str(e)}"}
 
 @mcp.tool(name="get_db_version", description="Returns the version of the database")
 def get_db_version() -> Dict[str, Any]:
