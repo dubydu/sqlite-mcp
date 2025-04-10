@@ -2,6 +2,10 @@
 
 A lightweight Model Context Protocol (MCP) server that enables Large Language Models (LLMs) to autonomously interact with SQLite databases.
 
+## Showcases
+
+<video src="https://github.com/dubydu/sqlite-mcp/raw/main/sqlite-mcp.mov" autoplay loop muted></video>
+
 ## Installation
 
 1. Clone the repository:
