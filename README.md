@@ -4,7 +4,7 @@ A lightweight Model Context Protocol (MCP) server that enables Large Language Mo
 
 ## Showcases
 
-<video src="https://github.com/dubydu/sqlite-mcp/blob/68fdf7877ca7151d812685ed84a4ee055c427c26/sqlite-mcp.mov" autoplay loop muted></video>
+<video src="https://raw.githubusercontent.com/dubydu/sqlite-mcp/main/sqlite-mcp.mov" autoplay loop muted></video>
 
 ## Installation
 
