@@ -54,6 +54,18 @@ For the full list of tools, see the [MCP_TOOLS.md](MCP_TOOLS.md)
     "/path/to/database.db"
   ]
 }
+
+# Example
+{
+  "name": "SQLite",
+  "key": "sqlite",
+  "command": "/Users/dubydu/Desktop/mcp/sqlite-mcp/.venv/bin/python",
+  "args": [
+    "/Users/dubydu/Desktop/mcp/sqlite-mcp/src/entry.py",
+    "--db-path",
+    "/Users/dubydu/Desktop/retention.sqlite"
+  ]
+}
 ```
 
 * Claude Desktop
