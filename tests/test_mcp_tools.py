@@ -273,12 +273,45 @@ def test_extract_to_json(test_db):
     assert result["success"] is True
     assert "message" in result
 
-    # Verify JSON file exists
-    json_path = os.path.join(os.getcwd(), "users_data.json")
+    # Verify JSON file exists in the database directory
+    db_dir = os.path.dirname(test_db)
+    json_path = os.path.join(db_dir, "users_data.json")
     assert os.path.exists(json_path)
 
     # Clean up JSON file
     os.remove(json_path)
+
+
+def test_extract_to_json_path_traversal(test_db):
+    # Attempt path traversal — file should still land in the db directory
+    result = extract_to_json("users", "../../../../tmp/evil")
+    assert result["success"] is True
+
+    db_dir = os.path.dirname(test_db)
+    safe_path = os.path.join(db_dir, "evil.json")
+    assert os.path.exists(safe_path)
+    assert not os.path.exists(os.path.join("/tmp", "evil.json"))
+
+    os.remove(safe_path)
+
+
+def test_extract_to_json_invalid_table_name(test_db):
+    # SQL injection attempt via table_name
+    result = extract_to_json("users; DROP TABLE users;--")
+    assert result["success"] is False
+    assert "Invalid table name" in result["error"]
+
+
+def test_backup_database_path_traversal(test_db):
+    # Attempt path traversal — backup should stay in db directory
+    result = backup_database("../../evil_backup.db")
+    assert result["success"] is True
+
+    db_dir = os.path.dirname(test_db)
+    safe_path = os.path.join(db_dir, "evil_backup.db")
+    assert os.path.exists(safe_path)
+
+    os.remove(safe_path)
 
 def test_alter_table(test_db):
     # Add a new column
