@@ -470,9 +470,17 @@ def backup_database(backup_filename: str = None) -> Dict[str, Any]:
         elif not backup_filename.endswith(".db"):
             backup_filename = f"{backup_filename}.db"
             
+        # Sanitize: strip any directory components to prevent path traversal
+        backup_filename = os.path.basename(backup_filename)
+
         # Create the full destination path
         destination_path = os.path.join(db_dir, backup_filename)
-        
+
+        # Validate the resolved path stays within the database directory
+        if not os.path.abspath(destination_path).startswith(os.path.abspath(db_dir) + os.sep) and \
+           os.path.abspath(destination_path) != os.path.abspath(db_dir):
+            return {"success": False, "error": "Invalid backup filename: path traversal not allowed"}
+
         # Make sure we're not overwriting the original database
         if os.path.abspath(destination_path) == os.path.abspath(DB_NAME):
             return {"success": False, "error": "Backup filename cannot be the same as the original database"}
@@ -519,6 +527,13 @@ def extract_to_json(table_name: str, output_filename: str = None) -> Dict[str, A
         Dict[str, Any]: A dictionary indicating success/failure and containing a result message or error.
     """
     try:
+        # Validate table_name to prevent SQL injection
+        if not table_name.isidentifier():
+            return {"success": False, "error": "Invalid table name"}
+
+        # Anchor exports to the database directory
+        export_dir = os.path.dirname(DB_NAME)
+
         # Generate output filename if not provided
         if not output_filename:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -526,8 +541,17 @@ def extract_to_json(table_name: str, output_filename: str = None) -> Dict[str, A
         elif not output_filename.endswith(".json"):
             output_filename = f"{output_filename}.json"
 
-        # Query all data from the table
-        query = f"SELECT * FROM {table_name};"
+        # Sanitize: strip any directory components to prevent path traversal
+        output_filename = os.path.basename(output_filename)
+
+        # Build the full path and validate it stays within the export directory
+        output_path = os.path.join(export_dir, output_filename)
+        if not os.path.abspath(output_path).startswith(os.path.abspath(export_dir) + os.sep) and \
+           os.path.abspath(output_path) != os.path.abspath(export_dir):
+            return {"success": False, "error": "Invalid output filename: path traversal not allowed"}
+
+        # Query all data from the table using parameterized identifier
+        query = f"SELECT * FROM [{table_name}];"
         result = execute_query(query)
 
         if not result["success"]:
@@ -535,12 +559,12 @@ def extract_to_json(table_name: str, output_filename: str = None) -> Dict[str, A
 
         # Write data to JSON file
         data = result.get("results", [])
-        with open(output_filename, "w") as json_file:
+        with open(output_path, "w") as json_file:
             json.dump(data, json_file, indent=4)
 
         return {
             "success": True,
-            "message": f"Data from table '{table_name}' successfully extracted to {output_filename}"
+            "message": f"Data from table '{table_name}' successfully extracted to {output_path}"
         }
     except Exception as e:
         return {"success": False, "error": f"Error extracting data to JSON: {str(e)}"}
